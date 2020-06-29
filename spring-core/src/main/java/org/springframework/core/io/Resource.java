@@ -50,6 +50,7 @@ import java.nio.channels.ReadableByteChannel;
  * @see PathResource
  * @see ByteArrayResource
  * @see InputStreamResource
+ * 测试是否可以提交代码
  */
 public interface Resource extends InputStreamSource {
 
