@@ -23,11 +23,13 @@ import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.beans.factory.BeanFactoryUtils;
 import org.springframework.beans.factory.CannotLoadBeanClassException;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.hshp.aop.Dao;
 import org.springframework.tests.sample.beans.ResourceTestBean;
 import org.springframework.util.FileCopyUtils;
 import org.springframework.util.ObjectUtils;
@@ -399,6 +401,19 @@ public class ClassPathXmlApplicationContextTests {
 		assertTrue(ctx.containsBean("logicOne"));
 		assertTrue(ctx.containsBean("logicTwo"));
 		ctx.close();
+	}
+
+	@Test
+	public void testAop() {
+		ApplicationContext ac = new ClassPathXmlApplicationContext("aop.xml");
+
+		/*String[] arrs = ((ClassPathXmlApplicationContext) ac).getBeanFactory().getBeanDefinitionNames();
+		for (String arr : arrs) {
+			System.out.println(arr);
+		}*/
+
+		Dao dao = (Dao) ac.getBean("daoImpl");
+		dao.select();
 	}
 
 }

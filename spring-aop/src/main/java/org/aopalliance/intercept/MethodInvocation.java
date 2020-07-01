@@ -28,6 +28,8 @@ import java.lang.reflect.Method;
  * @author Rod Johnson
  * @see MethodInterceptor
  */
+
+//方法调用	一个方法调用就是一个连接点
 public interface MethodInvocation extends Invocation {
 
 	/**

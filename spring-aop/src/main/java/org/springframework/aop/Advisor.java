@@ -33,6 +33,8 @@ import org.aopalliance.aop.Advice;
  * @author Rod Johnson
  * @author Juergen Hoeller
  */
+
+//通知器
 public interface Advisor {
 
 	/**

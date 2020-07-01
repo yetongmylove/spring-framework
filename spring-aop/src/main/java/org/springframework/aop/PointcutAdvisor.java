@@ -23,6 +23,7 @@ package org.springframework.aop;
  *
  * @author Rod Johnson
  */
+//切点通知器 整合了切点和通知两个模块 可以理解为切面
 public interface PointcutAdvisor extends Advisor {
 
 	/**

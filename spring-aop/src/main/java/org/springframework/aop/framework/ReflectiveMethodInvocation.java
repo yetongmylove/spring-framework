@@ -60,6 +60,8 @@ import java.util.Map;
  * @see #setUserAttribute
  * @see #getUserAttribute
  */
+
+// Joinpoint接口的实现类
 public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Cloneable {
 
     /**
@@ -210,7 +212,11 @@ public class ReflectiveMethodInvocation implements ProxyMethodInvocation, Clonea
             // 将 this 作为参数传递，以保证当前实例中调用链的执行
             // MethodInterceptor 基于不同的切面类型，有不同的实现。
             //      例如 @Before 对应 MethodBeforeAdviceInterceptor
-            //      例如 @After  对应 AfterReturningAdviceInterceptor
+            //      例如 @AfterReturning  对应 AfterReturningAdviceInterceptor
+			//      例如 @AfterThrowing 对应 ThrowsAdviceInterceptor
+			//      例如 @After  对应 AspectJAfterAdvice
+			//      例如 @Around 对应 AspectJAroundAdvice
+
 			return ((MethodInterceptor) interceptorOrInterceptionAdvice).invoke(this);
 		}
 	}

@@ -48,6 +48,16 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
+		/*
+		 * 下面的三个条件简单分析一下：
+		 *
+		 *   条件1：config.isOptimize() - 是否需要优化，这个属性没怎么用过，
+		 *         细节我不是很清楚
+		 *   条件2：config.isProxyTargetClass() - 检测 proxyTargetClass 的值，
+		 *         前面的代码会设置这个值
+		 *   条件3：hasNoUserSuppliedProxyInterfaces(config)
+		 *         - 目标 bean 是否实现了接口
+		 */
 		if (config.isOptimize() // 用来控制通过 CGLIB 创建的代理是否使用激进的优化策略，除非完成了解 Spring AOP 代理如何处理优化，否则不推荐用户使用这个设置。
                                 // 目前这个属性仅用于 CGLIB 代理，对于 JDK 代理无效。
                 || config.isProxyTargetClass() // 是否代理目标类，而不是目标类的接口。
