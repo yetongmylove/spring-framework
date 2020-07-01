@@ -157,6 +157,9 @@ public abstract class AopConfigUtils {
 		if (registry.containsBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME)) {
 			BeanDefinition apcDefinition = registry.getBeanDefinition(AUTO_PROXY_CREATOR_BEAN_NAME);
 			if (!cls.getName().equals(apcDefinition.getBeanClassName())) {
+				//	InfrastructureAdvisorAutoProxyCreator.class
+				//	AspectJAwareAdvisorAutoProxyCreator.class
+				//	AnnotationAwareAspectJAutoProxyCreator.class
 				int currentPriority = findPriorityForClass(apcDefinition.getBeanClassName()); // 当前的优先级
 				int requiredPriority = findPriorityForClass(cls); // 要求的优先级
                 // 当目前的优先级过低时，使用 cls 进行替换 className

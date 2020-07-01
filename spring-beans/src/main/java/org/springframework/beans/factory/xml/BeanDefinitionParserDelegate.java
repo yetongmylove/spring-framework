@@ -1379,6 +1379,7 @@ public class BeanDefinitionParserDelegate {
 			return null;
 		}
         // 调用自定义的 Handler 处理
+		//	AopNamespaceHandler
         return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 
