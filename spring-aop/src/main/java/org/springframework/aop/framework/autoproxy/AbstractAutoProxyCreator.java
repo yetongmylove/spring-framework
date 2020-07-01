@@ -483,7 +483,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 
 		// 判断对于给定的 Bean 是否使用 targetClass ，而不是接口代理。
         //      使用 CGLIB 代理时，相当于使用 targetClass 代理
-        //      使用 JDK 代理时，相当于使用期接口代理。
+        //      使用 JDK 代理时，相当于使用接口代理。
 		if (!proxyFactory.isProxyTargetClass()) {
 		    // 是否需要代理 targetClass
 			if (shouldProxyTargetClass(beanClass, beanName)) {

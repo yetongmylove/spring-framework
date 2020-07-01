@@ -213,6 +213,12 @@ public abstract class AopUtils {
 	 * for this bean includes any introductions
 	 * @return whether the pointcut can apply on any method
 	 */
+
+
+	/*	1.目标类必须满足expression的匹配规则
+		2.目标类中的方法必须满足expression的匹配规则，方法不是全部需要满足expression的匹配规则，有一个方法满足即可
+	*/
+
 	public static boolean canApply(Pointcut pc, Class<?> targetClass, boolean hasIntroductions) {
 		Assert.notNull(pc, "Pointcut must not be null");
 		// 先判断 Pointcut 是否可以匹配目标类。如果不可以，则返回 false

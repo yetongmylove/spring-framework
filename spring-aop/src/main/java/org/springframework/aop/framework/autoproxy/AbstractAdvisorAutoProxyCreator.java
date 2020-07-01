@@ -99,6 +99,7 @@ public abstract class AbstractAdvisorAutoProxyCreator extends AbstractAutoProxyC
 		 */
 		List<Advisor> eligibleAdvisors = findAdvisorsThatCanApply(candidateAdvisors, beanClass, beanName);
 		// 拓展 Advisor 集合。目前实现为空，子类可覆盖实现自定义逻辑
+		//	添加一个org.springframework.aop.support.DefaultPointcutAdvisor
 		extendAdvisors(eligibleAdvisors);
 		// 排序匹配的 Advisor 增强器
 		if (!eligibleAdvisors.isEmpty()) {

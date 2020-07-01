@@ -62,7 +62,7 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 	@Override
 	public Object instantiate(RootBeanDefinition bd, @Nullable String beanName, BeanFactory owner) {
 		// Don't override the class with CGLIB if no overrides.
-        // 没有覆盖，直接使用反射实例化即可
+        /// 检测 bean 配置中是否配置了 lookup-method 或 replace-method，若配置了，则需使用 CGLIB 构建 bean 对象
         if (!bd.hasMethodOverrides()) {
 			Constructor<?> constructorToUse;
 			synchronized (bd.constructorArgumentLock) {
@@ -80,9 +80,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 							constructorToUse = AccessController.doPrivileged(
 									(PrivilegedExceptionAction<Constructor<?>>) clazz::getDeclaredConstructor);
 						} else {
+							// 获取默认构造方法
 							constructorToUse =	clazz.getDeclaredConstructor();
 						}
 						// 标记 resolvedConstructorOrFactoryMethod 属性
+						// 设置 resolvedConstructorOrFactoryMethod
 						bd.resolvedConstructorOrFactoryMethod = constructorToUse;
 					} catch (Throwable ex) {
 						throw new BeanInstantiationException(clazz, "No default constructor found", ex);
@@ -90,10 +92,11 @@ public class SimpleInstantiationStrategy implements InstantiationStrategy {
 				}
 			}
             // 通过 BeanUtils 直接使用构造器对象实例化 Bean 对象
+			// 通过无参构造方法创建 bean 对象
             return BeanUtils.instantiateClass(constructorToUse);
 		} else {
 			// Must generate CGLIB subclass.
-            // 生成 CGLIB 创建的子类对象
+			// 使用 GCLIG 创建 bean 对象
             return instantiateWithMethodInjection(bd, beanName, owner);
 		}
 	}

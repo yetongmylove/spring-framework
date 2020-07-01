@@ -49,20 +49,18 @@ public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 	@Override
 	public AopProxy createAopProxy(AdvisedSupport config) throws AopConfigException {
 		/*
-		 * 下面的三个条件简单分析一下：
-		 *
-		 *   条件1：config.isOptimize() - 是否需要优化，这个属性没怎么用过，
-		 *         细节我不是很清楚
-		 *   条件2：config.isProxyTargetClass() - 检测 proxyTargetClass 的值，
-		 *         前面的代码会设置这个值
-		 *   条件3：hasNoUserSuppliedProxyInterfaces(config)
-		 *         - 目标 bean 是否实现了接口
+		 *   1.proxy-target-class没有配置或者proxy-target-class="false"，返回JdkDynamicAopProxy
+		 *   2.proxy-target-class="true"或者<bean>对象没有实现任何接口或者只实现了SpringProxy接口，返回Cglib2AopProxy
 		 */
-		if (config.isOptimize() // 用来控制通过 CGLIB 创建的代理是否使用激进的优化策略，除非完成了解 Spring AOP 代理如何处理优化，否则不推荐用户使用这个设置。
-                                // 目前这个属性仅用于 CGLIB 代理，对于 JDK 代理无效。
-                || config.isProxyTargetClass() // 是否代理目标类，而不是目标类的接口。
-                                                // 如果这个属性为 true ，CGLIB 代理将被创建。
-                || hasNoUserSuppliedProxyInterfaces(config)) { // 是否存在代理接口
+
+
+		/*	1.ProxyConfig的isOptimize方法为true，这表示让Spring自己去优化而不是用户指定
+		 *  2.ProxyConfig的isProxyTargetClass方法为true，这表示配置了proxy-target-class="true"
+		 *  3.ProxyConfig满足hasNoUserSuppliedProxyInterfaces方法执行结果为true，这表示<bean>对象没有实现任何接口或者实现的接口是SpringProxy接口
+		*/
+		if (config.isOptimize()
+                || config.isProxyTargetClass()
+                || hasNoUserSuppliedProxyInterfaces(config)) {
 			Class<?> targetClass = config.getTargetClass();
 			if (targetClass == null) {
 				throw new AopConfigException("TargetSource cannot determine target class: " +

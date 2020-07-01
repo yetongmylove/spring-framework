@@ -111,9 +111,11 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private AutowireCandidateResolver autowireCandidateResolver = new SimpleAutowireCandidateResolver();
 
 	/** Map from dependency type to corresponding autowired value. */
+	//	存储修正过的依赖映射关系
 	private final Map<Class<?>, Object> resolvableDependencies = new ConcurrentHashMap<>(16);
 
 	/** Map of bean definition objects, keyed by bean name. */
+	//	存储Bean名称-->Bean定义映射关系
 	private final Map<String, BeanDefinition> beanDefinitionMap = new ConcurrentHashMap<>(256);
 
 	/** Map of singleton and non-singleton bean names, keyed by dependency type. */
@@ -123,6 +125,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	private final Map<Class<?>, String[]> singletonBeanNamesByType = new ConcurrentHashMap<>(64);
 
 	/** List of bean definition names, in registration order. */
+	//	存储Bean定义名称列表
 	private volatile List<String> beanDefinitionNames = new ArrayList<>(256);
 
 	/** List of names of manually registered singletons, in registration order. */
@@ -784,9 +787,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		// Trigger initialization of all non-lazy singleton beans...
         // 遍历 Bean 名字的集合，触发 Bean 加载
 		for (String beanName : beanNames) {
-		    // 获得 RootBeanDefinition 对象
+			//	合并父类相关属性
+			//	将非RootBeanDefinition转换为RootBeanDefinition
 			RootBeanDefinition bd = getMergedLocalBeanDefinition(beanName);
-			// 单例 && 非延迟加载
+			// 非抽象 && 单例 && 非延迟加载
 			if (!bd.isAbstract() && bd.isSingleton() && !bd.isLazyInit()) {
 			    // 如果是 FactoryBean
 				if (isFactoryBean(beanName)) {
@@ -1150,6 +1154,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, requestingBeanName);
 			if (result == null) {
                 // 通用处理逻辑
+				// 解析依赖
 				result = doResolveDependency(descriptor, requestingBeanName, autowiredBeanNames, typeConverter);
 			}
 			return result;
@@ -1165,6 +1170,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
             // 针对给定的工厂给定一个快捷实现的方式，例如考虑一些预先解析的信息
             // 在进入所有bean的常规类型匹配算法之前，解析算法将首先尝试通过此方法解析快捷方式。
             // 子类可以覆盖此方法
+			// 该方法最终调用了 beanFactory.getBean(String, Class)，从容器中获取依赖
 			Object shortcut = descriptor.resolveShortcut(this);
 			if (shortcut != null) {
                 // 返回快捷的解析信息
@@ -1196,6 +1202,30 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 
             // 查找与类型相匹配的 bean
             // 返回值构成为：key = 匹配的 beanName，value = beanName 对应的实例化 bean
+			/*
+			 * 按类型查找候选列表，如果某个类型已经被实例化，则返回相应的实例。
+			 * 比如下面的配置：
+			 *
+			 *   <bean name="mongoDao" class="xyz.coolblog.autowire.MongoDao" primary="true"/>
+			 *   <bean name="service" class="xyz.coolblog.autowire.Service" autowire="byType"/>
+			 *   <bean name="mysqlDao" class="xyz.coolblog.autowire.MySqlDao"/>
+			 *
+			 * MongoDao 和 MySqlDao 均实现自 Dao 接口，Service 对象（不是接口）中有一个 Dao
+			 * 类型的属性。现在根据类型自动注入 Dao 的实现类。这里有两个候选 bean，一个是
+			 * mongoDao，另一个是 mysqlDao，其中 mongoDao 在 service 之前实例化，
+			 * mysqlDao 在 service 之后实例化。此时 findAutowireCandidates 方法会返回如下的结果：
+			 *
+			 *   matchingBeans = [ <mongoDao, Object@MongoDao>, <mysqlDao, Class@MySqlDao> ]
+			 *
+			 * 注意 mysqlDao 还未实例化，所以返回的是 MySqlDao.class。
+			 *
+			 * findAutowireCandidates 这个方法逻辑比较复杂，我简单说一下它的工作流程吧，如下：
+			 *   1. 从 BeanFactory 中获取某种类型 bean 的名称，比如上面的配置中
+			 *      mongoDao 和 mysqlDao 均实现了 Dao 接口，所以他们是同一种类型的 bean。
+			 *   2. 遍历上一步得到的名称列表，并判断 bean 名称对应的 bean 是否是合适的候选项，
+			 *      若合适则添加到候选列表中，并在最后返回候选列表
+			 *
+			 */
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
             // 没有找到，检验 @autowire  的 require 是否为 true
 			if (matchingBeans.isEmpty()) {
@@ -1210,6 +1240,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Object instanceCandidate;
 
 			if (matchingBeans.size() > 1) {
+				/*
+				 * matchingBeans.size() > 1，则表明存在多个可注入的候选项，这里判断使用哪一个
+				 * 候选项。比如下面的配置：
+				 *
+				 *   <bean name="mongoDao" class="xyz.coolblog.autowire.MongoDao" primary="true"/>
+				 *   <bean name="mysqlDao" class="xyz.coolblog.autowire.MySqlDao"/>
+				 *
+				 * mongoDao 的配置中存在 primary 属性，所以 mongoDao 会被选为最终的候选项。如
+				 * 果两个 bean 配置都没有 primary 属性，则需要根据优先级选择候选项。
+				 * 按照 @Primary 和 @Priority 的顺序
+				 */
                 // 确认给定 bean autowire 的候选者
                 // 按照 @Primary 和 @Priority 的顺序
 				autowiredBeanName = determineAutowireCandidate(matchingBeans, descriptor);

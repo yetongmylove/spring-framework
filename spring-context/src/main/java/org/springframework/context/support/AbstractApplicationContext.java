@@ -133,6 +133,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	protected final Log logger = LogFactory.getLog(getClass());
 
 	/** Unique id for this context, if any. */
+	//	上下文使用的唯一Id，标识此ApplicationContext
 	private String id = ObjectUtils.identityToString(this);
 
 	/** Display name. */
@@ -147,6 +148,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	private ConfigurableEnvironment environment;
 
 	/** BeanFactoryPostProcessors to apply on refresh. */
+	//	存储BeanFactoryPostProcessor接口，Spring提供的一个扩展点
 	private final List<BeanFactoryPostProcessor> beanFactoryPostProcessors = new ArrayList<>();
 
 	/** System time in milliseconds when this context started. */
@@ -159,10 +161,12 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	private final AtomicBoolean closed = new AtomicBoolean();
 
 	/** Synchronization monitor for the "refresh" and "destroy". */
+	//	refresh方法和destory方法公用的一个监视器，避免两个方法同时执行
 	private final Object startupShutdownMonitor = new Object();
 
 	/** Reference to the JVM shutdown hook, if registered. */
 	@Nullable
+	//	Spring提供的一个钩子，JVM停止执行时会运行Thread里面的方法
 	private Thread shutdownHook;
 
 	/** ResourcePatternResolver used by this context. */
@@ -178,9 +182,11 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	/** Helper class used in event publishing. */
 	@Nullable
+	//	Spring提供的事件管理机制中的事件多播器接口
 	private ApplicationEventMulticaster applicationEventMulticaster;
 
 	/** Statically specified listeners. */
+	//	Spring提供的事件管理机制中的应用监听器
 	private final Set<ApplicationListener<?>> applicationListeners = new LinkedHashSet<>();
 
 	/** ApplicationEvents published early. */
@@ -480,7 +486,9 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 
 	@Override
 	public void refresh() throws BeansException, IllegalStateException {
-		synchronized (this.startupShutdownMonitor) { // 加锁，避免 #refresh() 和 #close() 方法，自身或者对方并行执行。
+		//	避免多线程同时刷新Spring上下文
+		//	加锁，避免 #refresh() 和 #close() 方法，自身或者对方并行执行
+		synchronized (this.startupShutdownMonitor) {
 			// Prepare this context for refreshing.
             // 准备刷新的上下文
 			prepareRefresh();
@@ -855,7 +863,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 	 */
 	protected void finishBeanFactoryInitialization(ConfigurableListableBeanFactory beanFactory) {
 		// Initialize conversion service for this context.
-        // TODO 芋艿 ConversionService 《Spring 源码深度解析》有说明
+		//	设置ConversionService
 		if (beanFactory.containsBean(CONVERSION_SERVICE_BEAN_NAME) &&
 				beanFactory.isTypeMatch(CONVERSION_SERVICE_BEAN_NAME, ConversionService.class)) {
 			beanFactory.setConversionService(
@@ -867,6 +875,7 @@ public abstract class AbstractApplicationContext extends DefaultResourceLoader
 		// at this point, primarily for resolution in annotation attribute values.
         // TODO 芋艿
 		if (!beanFactory.hasEmbeddedValueResolver()) {
+			//	StringValueResolver（字符串解析器）
 			beanFactory.addEmbeddedValueResolver(strVal -> getEnvironment().resolvePlaceholders(strVal));
 		}
 

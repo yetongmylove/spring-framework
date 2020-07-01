@@ -21,6 +21,6 @@
 		</aop:aspect>
 	</aop:config>
 
-	<aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>
+	<!--<aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>-->
 
 </beans>
