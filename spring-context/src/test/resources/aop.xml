@@ -13,14 +13,25 @@
 
 	<bean id="myAspect" class="org.springframework.hshp.aop.MyAspect" />
 
-	<aop:config proxy-target-class="true" expose-proxy="true">
-		<aop:aspect id="time" ref="timeHandler">
+	<bean id="logHandler" class="org.springframework.hshp.aop.LogHandler" />
+
+	<aop:config>
+		<!--<aop:aspect id="time" ref="timeHandler" order="3">
 			<aop:pointcut id="addAllMethod" expression="execution(* org.springframework.hshp.aop.Dao.*(..))" />
 			<aop:before method="printTime" pointcut-ref="addAllMethod" />
 			<aop:after method="printTime" pointcut-ref="addAllMethod" />
-		</aop:aspect>
-	</aop:config>
+			<aop:after-returning method="printTime" pointcut-ref="addAllMethod" />
+			<aop:after-throwing method="printTime" pointcut-ref="addAllMethod" />
+			<aop:around method="printTime" pointcut-ref="addAllMethod" />
+		</aop:aspect>-->
 
-	<!--<aop:aspectj-autoproxy proxy-target-class="true" expose-proxy="true"/>-->
+	<!--<aop:aspect id="log" ref="logHandler" order="2">
+        <aop:pointcut id="printLog" expression="execution(* org.springframework.hshp.aop.Dao.*(..))" />
+        <aop:before method="LogBefore" pointcut-ref="printLog" />
+        <aop:after method="LogAfter" pointcut-ref="printLog" />
+    </aop:aspect>-->
+</aop:config>
+
+<aop:aspectj-autoproxy/>
 
 </beans>

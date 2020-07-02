@@ -63,6 +63,8 @@ public interface Joinpoint {
 	 * <p>For instance, the target object for an invocation.
 	 * @return the object (can be null if the accessible object is static)
 	 */
+
+	//被代理的对象
 	Object getThis();
 
 	/**
@@ -70,6 +72,8 @@ public interface Joinpoint {
 	 * <p>The static part is an accessible object on which a chain of
 	 * interceptors are installed.
 	 */
+
+	//Method
 	AccessibleObject getStaticPart();
 
 }

@@ -26,11 +26,11 @@ package org.aopalliance.aop;
 
 /**
  * 通知(横切逻辑)	Spring 提供了5种通知
- * 	    前置通知（Before advice）- 在目标方便调用前执行通知
- * 		后置通知（After advice）- 在目标方法完成后执行通知
- * 		返回通知（After returning advice）- 在目标方法执行成功后，调用通知
- * 		异常通知（After throwing advice）- 在目标方法抛出异常后，执行通知
- * 		环绕通知（Around advice）- 在目标方法调用前后均可执行自定义逻辑
+ * 	    前置通知（Before advice）- 在目标方便调用前执行通知	AspectJMethodBeforeAdvice
+ * 		后置通知（After advice）- 在目标方法完成后执行通知	AspectJAfterAdvice
+ * 		返回通知（After returning advice）- 在目标方法执行成功后，调用通知		AspectJAfterReturningAdvice
+ * 		异常通知（After throwing advice）- 在目标方法抛出异常后，执行通知	AspectJAfterThrowingAdvice
+ * 		环绕通知（Around advice）- 在目标方法调用前后均可执行自定义逻辑	AspectJAroundAdvice
  */
 public interface Advice {
 

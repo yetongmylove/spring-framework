@@ -239,7 +239,10 @@ public abstract class AopUtils {
 			introductionAwareMethodMatcher = (IntroductionAwareMethodMatcher) methodMatcher;
 		}
 
-		// 获得类和其所有接口
+		/*
+		 * 查找当前类及其父类（以及父类的父类等等）所实现的接口，由于接口中的方法是 public，
+		 * 所以当前类可以继承其父类，和父类的父类中所有的接口方法
+		 */
 		Set<Class<?>> classes = new LinkedHashSet<>();
 		if (!Proxy.isProxyClass(targetClass)) {
 			classes.add(ClassUtils.getUserClass(targetClass)); // 获得自身的类
@@ -251,7 +254,7 @@ public abstract class AopUtils {
 		    // 遍历每个方法，判断是否匹配
 			Method[] methods = ReflectionUtils.getAllDeclaredMethods(clazz);
 			for (Method method : methods) {
-			    // 根据情况，使用 IntroductionAwareMethodMatcher 还是 PointcutAdvisor ，调用对应的匹配方法
+				// 使用 methodMatcher 匹配方法，匹配成功即可立即返回
 				if (introductionAwareMethodMatcher != null ?
 						introductionAwareMethodMatcher.matches(method, targetClass, hasIntroductions) : // IntroductionAwareMethodMatcher 匹配方法
 						methodMatcher.matches(method, targetClass)) { // PointcutAdvisor 匹配方法

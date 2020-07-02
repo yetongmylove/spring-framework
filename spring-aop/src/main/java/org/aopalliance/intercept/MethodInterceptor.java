@@ -39,6 +39,14 @@ package org.aopalliance.intercept;
  *
  * @author Rod Johnson
  */
+
+/**
+ *  前置通知（Before advice）- 在目标方便调用前执行通知	AspectJMethodBeforeAdvice	MethodBeforeAdviceInterceptor	MethodBeforeAdviceAdapter
+ *  后置通知（After advice）- 在目标方法完成后执行通知	AspectJAfterAdvice
+ *  返回通知（After returning advice）- 在目标方法执行成功后，调用通知		AspectJAfterReturningAdvice	AfterReturningAdviceInterceptor	AfterReturningAdviceAdapter
+ *  异常通知（After throwing advice）- 在目标方法抛出异常后，执行通知	AspectJAfterThrowingAdvice
+ *  环绕通知（Around advice）- 在目标方法调用前后均可执行自定义逻辑	AspectJAroundAdvice
+ */
 @FunctionalInterface
 public interface MethodInterceptor extends Interceptor {
 

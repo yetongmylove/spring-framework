@@ -47,6 +47,8 @@ import java.util.regex.Pattern;
  * @see org.springframework.aop.aspectj.annotation.AspectJAdvisorFactory
  */
 @SuppressWarnings("serial")
+
+//	解析 @Aspect 注解，并构建成通知器
 public class AnnotationAwareAspectJAutoProxyCreator extends AspectJAwareAdvisorAutoProxyCreator {
 
 	@Nullable

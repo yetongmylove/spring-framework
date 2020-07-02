@@ -297,12 +297,16 @@ public class ReflectiveAspectJAdvisorFactory extends AbstractAspectJAdvisorFacto
         // 设置创建的 Advice 对象的属性
 		springAdvice.setAspectName(aspectName); // 切面名
 		springAdvice.setDeclarationOrder(declarationOrder); // 切面顺序
-		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod); // 参数集合
+		/*
+		 * 获取方法的参数列表名称，比如方法 int sum(int numX, int numY),
+		 * getParameterNames(sum) 得到 argNames = [numX, numY]
+		 */
+		String[] argNames = this.parameterNameDiscoverer.getParameterNames(candidateAdviceMethod);
 		if (argNames != null) {
 			springAdvice.setArgumentNamesFromStringArray(argNames);
 		}
-		// TODO 芋艿，等需要的时候，细看
-		springAdvice.calculateArgumentBindings(); // 参数绑定
+		// 设置参数名
+		springAdvice.calculateArgumentBindings();
 
 		return springAdvice;
 	}

@@ -44,6 +44,8 @@ import java.lang.reflect.Proxy;
  * @see AdvisedSupport#setInterfaces
  */
 @SuppressWarnings("serial")
+/*默认情况下 proxy-target-class 属性为 false。当目标 bean 实现了接口时，Spring 会基于 JDK 动态代理为目标 bean 创建代理对象。
+若未实现任何接口，Spring 则会通过 CGLIB 创建代理。而当 proxy-target-class 属性设为 true 时，则会强制 Spring 通过 CGLIB 的方式创建代理对象，即使目标 bean 实现了接口*/
 public class DefaultAopProxyFactory implements AopProxyFactory, Serializable {
 
 	@Override

@@ -1,5 +1,6 @@
 package org.springframework.hshp.aop;
 
+import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.*;
 
@@ -14,30 +15,32 @@ import org.aspectj.lang.annotation.*;
 public class MyAspect {
 
 	@Pointcut("execution(* org.springframework.hshp.aop.*.*(..))")
-	public void myPointcut() {}
+	public void myPointcut() {
+	}
 
 	@Before("myPointcut()")
-	public void doAccessCheck() {
+	public void before(JoinPoint joinPoint) {
+		System.out.println("before:" + joinPoint.getSignature().getName());
 		System.out.println("before");
 	}
 
 	@After("myPointcut()")
-	public void doAccessCheck2() {
-		System.out.println("After");
+	public void after() {
+		System.out.println("after");
 	}
 
 	@AfterThrowing("myPointcut()")
-	public void doAccessCheck3() {
+	public void afterThrowing() {
 		System.out.println("AfterThrowing");
 	}
 
 	@AfterReturning("myPointcut()")
-	public void doAccessCheck4() {
+	public void afterReturning() {
 		System.out.println("AfterReturning");
 	}
 
 	@Around("myPointcut()")
-	public void doAccessCheck5(ProceedingJoinPoint pjp) throws Throwable {
+	public void around(ProceedingJoinPoint pjp) throws Throwable {
 		System.out.println("Around start");
 		pjp.proceed();
 		System.out.println("Around end");

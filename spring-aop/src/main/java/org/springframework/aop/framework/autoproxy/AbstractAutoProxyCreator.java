@@ -373,6 +373,7 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 			// 通过 advisedBeans 标记，需要增强
 			this.advisedBeans.put(cacheKey, Boolean.TRUE);
 			// 创建代理
+			//	CGLIB 基于类继承，需要注意就是如果方法使用了 final 修饰，或者是 private 方法，是不能被增强的
 			Object proxy = createProxy(
 					bean.getClass(), beanName, specificInterceptors, new SingletonTargetSource(bean));
 			// 记录代理类型
@@ -481,20 +482,24 @@ public abstract class AbstractAutoProxyCreator extends ProxyProcessorSupport
 		// 获取当前类的属性，到 ProxyFactory 中
 		proxyFactory.copyFrom(this);
 
-		// 判断对于给定的 Bean 是否使用 targetClass ，而不是接口代理。
-        //      使用 CGLIB 代理时，相当于使用 targetClass 代理
-        //      使用 JDK 代理时，相当于使用接口代理。
+		/*
+		 * 默认配置下，或用户显式配置 proxy-target-class = "false" 时，
+		 * 这里的 proxyFactory.isProxyTargetClass() 也为 false
+		 */
 		if (!proxyFactory.isProxyTargetClass()) {
 		    // 是否需要代理 targetClass
 			if (shouldProxyTargetClass(beanClass, beanName)) {
 				proxyFactory.setProxyTargetClass(true); // 设置使用 targetClass 代理
 			} else {
-			    // 评估是否代理接口
+				/*
+				 * 检测 beanClass 是否实现了接口，若未实现，则将
+				 * proxyFactory 的成员变量 proxyTargetClass 设为 true
+				 */
 				evaluateProxyInterfaces(beanClass, proxyFactory);
 			}
 		}
 
-		// 创建增强器们，并添加到 ProxyFactory 对象中
+		// specificInterceptors 中若包含有 Advice，此处将 Advice 转为 Advisor
 		Advisor[] advisors = buildAdvisors(beanName, specificInterceptors);
 		proxyFactory.addAdvisors(advisors);
 		// 设置 targetSource 目标对象，到 ProxyFactory 对象中

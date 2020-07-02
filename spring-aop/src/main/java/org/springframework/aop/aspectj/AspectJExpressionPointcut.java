@@ -77,7 +77,8 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @SuppressWarnings("serial")
 
-//AspectJ 表达式切点类
+//	AspectJ 表达式切点类
+//	通过 AspectJ 表达式对连接点进行选择
 public class AspectJExpressionPointcut extends AbstractExpressionPointcut
 		implements ClassFilter, IntroductionAwareMethodMatcher, BeanFactoryAware {
 
