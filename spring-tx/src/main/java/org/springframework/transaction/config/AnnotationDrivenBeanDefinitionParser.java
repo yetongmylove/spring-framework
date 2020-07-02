@@ -61,6 +61,8 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 	    // 注册 {@link TransactionalEventListenerFactory} 的 BeanDefinition 对象
+		//	beanName:org.springframework.transaction.config.internalTransactionalEventListenerFactory
+		//	beanClass:TransactionalEventListenerFactory
 		registerTransactionalEventListenerFactory(parserContext);
 		// 获得 mode 属性。根据不同的 mode ，执行不同的逻辑处理。
 		String mode = element.getAttribute("mode");
@@ -128,6 +130,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 		    // 注册 InfrastructureAdvisorAutoProxyCreator 的 BeanDefinition 。关于它，点进 InfrastructureAdvisorAutoProxyCreator 类的注释里面看看。
 			AopNamespaceUtils.registerAutoProxyCreatorIfNecessary(parserContext, element);
 
+			//	注册BeanFactoryTransactionAttributeSourceAdvisor
 			String txAdvisorBeanName = TransactionManagementConfigUtils.TRANSACTION_ADVISOR_BEAN_NAME;
 			if (!parserContext.getRegistry().containsBeanDefinition(txAdvisorBeanName)) {
 				Object eleSource = parserContext.extractSource(element);
@@ -145,6 +148,7 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 				RootBeanDefinition interceptorDef = new RootBeanDefinition(TransactionInterceptor.class);
 				interceptorDef.setSource(eleSource);
 				interceptorDef.setRole(BeanDefinition.ROLE_INFRASTRUCTURE);
+				//	设置transactionManagerBeanName
 				registerTransactionManager(element, interceptorDef);
 				interceptorDef.getPropertyValues().add("transactionAttributeSource", new RuntimeBeanReference(sourceName));
 				String interceptorName = parserContext.getReaderContext().registerWithGeneratedName(interceptorDef);
