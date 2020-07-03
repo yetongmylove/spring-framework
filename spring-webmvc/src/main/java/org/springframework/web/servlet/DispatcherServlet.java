@@ -1071,7 +1071,7 @@ public class DispatcherServlet extends FrameworkServlet {
 					return;
 				}
 
-				// TODO 芋艿 视图
+				// 如果 controller 未返回 view 名称，这里生成默认的 view 名称
 				applyDefaultViewName(processedRequest, mv);
 				// 后置处理 拦截器
 				mappedHandler.applyPostHandle(processedRequest, response, mv);

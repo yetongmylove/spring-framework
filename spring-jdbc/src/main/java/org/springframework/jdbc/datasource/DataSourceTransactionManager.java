@@ -310,7 +310,7 @@ public class DataSourceTransactionManager extends AbstractPlatformTransactionMan
 
 			// 【3. 设置 connection 的属性】准备事务连接。实际没啥逻辑。
 			prepareTransactionalConnection(con, definition);
-			// 设置事务已激活
+			//设置当前线程有事务，后续进来的线程判断的时候就可以按照这个来做判断了
 			txObject.getConnectionHolder().setTransactionActive(true);
 
 			// 设置超时时间

@@ -914,22 +914,23 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 					if (status.isDebug()) {
 						logger.debug("Rolling back transaction to savepoint");
 					}
+					//如果有保存点，当前事务为单独的线程则回退到保存点
 					status.rollbackToHeldSavepoint();
                 // 独立的新事务，直接回滚
 				} else if (status.isNewTransaction()) {
 					if (status.isDebug()) {
 						logger.debug("Initiating transaction rollback");
 					}
-					// 直接回滚
+					//如果当前事务为独立的新事务，则直接回退
 					doRollback(status);
 				} else {
-                    // TODO 芋艿，后续详细看，貌似和 jta 有点关系
                     // Participating in larger transaction
 					if (status.hasTransaction()) {
 						if (status.isLocalRollbackOnly() || isGlobalRollbackOnParticipationFailure()) {
 							if (status.isDebug()) {
 								logger.debug("Participating transaction failed - marking existing transaction as rollback-only");
 							}
+							//如果当前事务不是独立的事务，那么只能标记状态，等待事务链执行完毕后一起回滚
 							doSetRollbackOnly(status);
 						} else {
 							if (status.isDebug()) {
@@ -959,6 +960,7 @@ public abstract class AbstractPlatformTransactionManager implements PlatformTran
 			}
 		} finally {
 		    // 清理，重要
+			//清空前面记录的资源，并将挂起的线程恢复，前面有挂起
 			cleanupAfterCompletion(status);
 		}
 	}

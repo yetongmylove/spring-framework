@@ -61,8 +61,6 @@ class AnnotationDrivenBeanDefinitionParser implements BeanDefinitionParser {
 	@Nullable
 	public BeanDefinition parse(Element element, ParserContext parserContext) {
 	    // 注册 {@link TransactionalEventListenerFactory} 的 BeanDefinition 对象
-		//	beanName:org.springframework.transaction.config.internalTransactionalEventListenerFactory
-		//	beanClass:TransactionalEventListenerFactory
 		registerTransactionalEventListenerFactory(parserContext);
 		// 获得 mode 属性。根据不同的 mode ，执行不同的逻辑处理。
 		String mode = element.getAttribute("mode");
