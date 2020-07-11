@@ -16,16 +16,12 @@
 
 package org.springframework.context.annotation;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.annotation.AliasFor;
 import org.springframework.stereotype.Component;
+
+import java.lang.annotation.*;
 
 /**
  * Indicates that a class declares one or more {@link Bean @Bean} methods and
@@ -418,6 +414,13 @@ import org.springframework.stereotype.Component;
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 @Component
+
+/*@Configuration注解的配置类有如下要求
+
+1.@Configuration不可以是final类型
+2.@Configuration不可以是匿名类
+3.嵌套的@Configuration必须是静态类*/
+
 public @interface Configuration {
 
 	/**

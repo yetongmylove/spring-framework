@@ -16,11 +16,7 @@
 
 package org.springframework.context.annotation;
 
-import java.util.Map;
-import java.util.regex.Pattern;
-
 import org.junit.Test;
-
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.NoSuchBeanDefinitionException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +29,13 @@ import org.springframework.context.annotation6.Jsr330NamedForScanning;
 import org.springframework.core.ResolvableType;
 import org.springframework.util.ObjectUtils;
 
-import static java.lang.String.*;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import static java.lang.String.format;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.*;
-import static org.springframework.util.StringUtils.*;
+import static org.springframework.util.StringUtils.uncapitalize;
 
 /**
  * @author Chris Beams
@@ -86,6 +85,8 @@ public class AnnotationConfigApplicationContextTests {
 	public void getBeanByType() {
 		ApplicationContext context = new AnnotationConfigApplicationContext(Config.class);
 		TestBean testBean = context.getBean(TestBean.class);
+
+		Object obj=	context.getBean("annotationConfigApplicationContextTests.Config");
 		assertNotNull(testBean);
 		assertThat(testBean.name, equalTo("foo"));
 	}

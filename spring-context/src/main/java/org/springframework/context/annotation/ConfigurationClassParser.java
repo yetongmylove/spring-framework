@@ -164,6 +164,12 @@ class ConfigurationClassParser {
 			}
 		}
 
+		//	处理实现了DeferredImportSelector接口的类
+		//  DeferredImportSelector 是 ImportSelector 的一个变种。
+		// ImportSelector 被设计成其实和@Import注解的类同样的导入效果，但是实现 ImportSelector
+		// 的类可以条件性地决定导入哪些配置。
+		// DeferredImportSelector 的设计目的是在所有其他的配置类被处理后才处理。这也正是
+		// 该语句被放到本函数最后一行的原因
 		processDeferredImportSelectors();
 	}
 
@@ -197,6 +203,9 @@ class ConfigurationClassParser {
 
 
 	protected void processConfigurationClass(ConfigurationClass configClass) throws IOException {
+		// ConfigurationPhase枚举类型的作用：ConfigurationPhase的作用就是根据条件来判断是否加载这个配置类
+		// 两个值：PARSE_CONFIGURATION 若条件不匹配就不加载此@Configuration
+		// REGISTER_BEAN：无论如何，所有@Configurations都将被解析。
 		if (this.conditionEvaluator.shouldSkip(configClass.getMetadata(), ConfigurationPhase.PARSE_CONFIGURATION)) {
 			return;
 		}
@@ -226,6 +235,7 @@ class ConfigurationClassParser {
 		}
 		while (sourceClass != null);
 
+		// 保存我们所有的配置类  注意：它是一个LinkedHashMap，所以是有序的
 		this.configurationClasses.put(configClass, configClass);
 	}
 
@@ -238,11 +248,25 @@ class ConfigurationClassParser {
 	 * @return the superclass, or {@code null} if none found or previously processed
 	 */
 	@Nullable
+	/*一个配置类的成员类(配置类内嵌套定义的类)也可能适配类，先遍历这些成员配置类，调用processConfigurationClass处理它们;
+	处理配置类上的注解@PropertySources,@PropertySource
+	处理配置类上的注解@ComponentScans,@ComponentScan
+	处理配置类上的注解@Import
+	处理配置类上的注解@ImportResource
+	处理配置类中每个带有@Bean注解的方法
+			处理配置类所实现接口的缺省方法
+	检查父类是否需要处理，如果父类需要处理返回父类，否则返回null*/
+
 	protected final SourceClass doProcessConfigurationClass(ConfigurationClass configClass, SourceClass sourceClass)
 			throws IOException {
 		// 1、首先处理内部类，处理内部类时，最终还是调用doProcessConfigurationClass()方法
+		// 因为@Import、@ImportResource这种属于lite模式的配置类，但是我们却不让他支持内部类了
 		if (configClass.getMetadata().isAnnotated(Component.class.getName())) {
 			// Recursively process any member (nested) classes first
+			// 基本逻辑：内部类也可以有多个（支持lite模式和full模式，也支持order排序）
+			// 若不是被import过的，那就顺便直接解析它（processConfigurationClass（））
+			// 另外：该内部class可以是private  也可以是static~~~(建议用private)
+			// 所以可以看到，把@Bean等定义在内部类里面，是有助于提升Bean的优先级
 			processMemberClasses(configClass, sourceClass);
 		}
 
@@ -284,6 +308,8 @@ class ConfigurationClassParser {
 		}
 
 		// Process any @Import annotations
+		// 注意这里调用到了getImports()方法，它会搜集sourceClass上所有的@Import注解的value值，
+		// 具体搜集的方式是访问sourceClass直接注解的@Import以及递归访问它的注解中隐含的所有的@Import
 		processImports(configClass, sourceClass, getImports(sourceClass), true);
 
 		// Process any @ImportResource annotations
@@ -494,6 +520,7 @@ class ConfigurationClassParser {
 	private Set<SourceClass> getImports(SourceClass sourceClass) throws IOException {
 		Set<SourceClass> imports = new LinkedHashSet<>();
 		Set<SourceClass> visited = new LinkedHashSet<>();
+		//	所有的内嵌类、以及注解是否有@Import注解
 		collectImports(sourceClass, imports, visited);
 		return imports;
 	}
@@ -573,9 +600,17 @@ class ConfigurationClassParser {
 		return group;
 	}
 
+	/**
+	 * 处理配置类上搜集到的@Import注解
+	 * 参数 configuClass 配置类
+	 * 参数 currentSourceClass 当前源码类
+	 * 参数 importCandidates, 所有的@Import注解的value
+	 * 参数 checkForCircularImports, 是否检查循环导入
+	 **/
 	private void processImports(ConfigurationClass configClass, SourceClass currentSourceClass,
 			Collection<SourceClass> importCandidates, boolean checkForCircularImports) {
 
+		// 如果配置类上没有任何候选@Import，说明没有需要处理的导入，则什么都不用做，直接返回
 		if (importCandidates.isEmpty()) {
 			return;
 		}
@@ -586,6 +621,10 @@ class ConfigurationClassParser {
 		else {
 			this.importStack.push(configClass);
 			try {
+				// 循环处理每一个@Import,每个@Import可能导入三种类型的类 :
+				// 1. ImportSelector
+				// 2. ImportBeanDefinitionRegistrar
+				// 3. 其他类型，都当作配置类处理，也就是相当于使用了注解@Configuration的配置类
 				for (SourceClass candidate : importCandidates) {
 					if (candidate.isAssignable(ImportSelector.class)) {
 						// Candidate class is an ImportSelector -> delegate to it to determine imports
@@ -808,6 +847,7 @@ class ConfigurationClassParser {
 		 * Return the imports defined by the group.
 		 * @return each import with its associated configuration class
 		 */
+
 		public Iterable<Group.Entry> getImports() {
 			for (DeferredImportSelectorHolder deferredImport : this.deferredImports) {
 				this.group.process(deferredImport.getConfigurationClass().getMetadata(),
