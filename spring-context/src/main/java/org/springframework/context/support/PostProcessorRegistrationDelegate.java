@@ -57,15 +57,15 @@ final class PostProcessorRegistrationDelegate {
 		if (beanFactory instanceof BeanDefinitionRegistry) {
 		    // 转化为 BeanDefinitionRegistry 对象
 			BeanDefinitionRegistry registry = (BeanDefinitionRegistry) beanFactory;
-			// BeanDefinitionRegistryPostProcessor 数组
+			// 非BeanDefinitionRegistryPostProcessor 数组
 			List<BeanFactoryPostProcessor> regularPostProcessors = new ArrayList<>(); // regular 翻译为常规。
-			// 非 BeanDefinitionRegistryPostProcessor 数组
+			// BeanDefinitionRegistryPostProcessor 数组
 			List<BeanDefinitionRegistryPostProcessor> registryProcessors = new ArrayList<>();
 
 			for (BeanFactoryPostProcessor postProcessor : beanFactoryPostProcessors) {
 				if (postProcessor instanceof BeanDefinitionRegistryPostProcessor) {
 					BeanDefinitionRegistryPostProcessor registryProcessor = (BeanDefinitionRegistryPostProcessor) postProcessor;
-					// TODO 对于 BeanDefinitionRegistryPostProcessor 类型，在 BeanFactoryPostProcessor 的基础上还有自定义的方法
+					// 对于BeanDefinitionRegistryPostProcessor类型，在 BeanFactoryPostProcessor 的基础上还有自定义的方法
                     // 需要先调用
 					registryProcessor.postProcessBeanDefinitionRegistry(registry);
                     // 添加到 registryProcessors 中
